@@ -1,5 +1,5 @@
 # Inicia o PilaManager usando o PostgreSQL instalado no Windows (sem Docker).
-# Na primeira execucao cria a instancia PostgreSQL da demo; nas seguintes apenas a inicia.
+# Na primeira execucao cria a instancia banco de dados; nas seguintes apenas a inicia.
 # So informa sucesso depois que http://localhost:3000/api/health responder "ok".
 $ErrorActionPreference = 'Continue'
 $project = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
@@ -8,7 +8,7 @@ Set-Location $project
 $logs = Join-Path $project 'logs'
 $pidFile = Join-Path $logs 'servidor.pid'
 
-Write-Titulo 'PilaManager 2.1 - Demo PostgreSQL (modo local)'
+Write-Titulo 'PilaManager 2.1'
 
 Write-Titulo '1. Verificando Node.js'
 if (-not (Get-Command node -ErrorAction SilentlyContinue)) {
@@ -16,7 +16,7 @@ if (-not (Get-Command node -ErrorAction SilentlyContinue)) {
 }
 Write-Host ('Node.js ' + (& node --version))
 
-Write-Titulo '2. Preparando e iniciando o PostgreSQL'
+Write-Titulo '2. Preparando e iniciando o banco de dados'
 $tools = Get-PostgresTools
 $settings = Initialize-EnvFile $project
 Start-DemoPostgres $tools $settings
@@ -27,7 +27,7 @@ if (-not (Test-Path (Join-Path $project 'node_modules\pg'))) {
     if ($LASTEXITCODE -ne 0) { Stop-ComMensagem 'Falha ao instalar dependencias (npm install).' }
 } else { Write-Host 'Dependencias ja instaladas.' }
 
-Write-Titulo '4. Atualizando estrutura do banco e dados ficticios'
+Write-Titulo '4. Atualizando o banco de dados'
 & node scripts/migrate.js
 if ($LASTEXITCODE -ne 0) { Stop-ComMensagem 'Migration falhou. Veja a mensagem acima.' }
 & node scripts/seed.js

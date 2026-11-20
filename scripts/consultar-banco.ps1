@@ -1,4 +1,4 @@
-# Consulta o PostgreSQL da demo usando as credenciais do .env (sem pedir senha).
+# Consulta o banco de dados usando as credenciais do .env (sem pedir senha).
 # Uso: .\scripts\consultar-banco.ps1                -> mostra tabelas, usuarios e pacientes
 #      .\scripts\consultar-banco.ps1 -Interativo    -> abre o terminal psql
 param([switch]$Interativo)
@@ -27,7 +27,7 @@ try {
     foreach ($titulo in $consultas.Keys) {
         Write-Host "`n== $titulo ==" -ForegroundColor Cyan
         & $psql @conn -q -c $consultas[$titulo] -o $out
-        if ($LASTEXITCODE -ne 0) { Write-Host 'Falha na consulta. O PostgreSQL da demo esta em execucao?' -ForegroundColor Red; break }
+        if ($LASTEXITCODE -ne 0) { Write-Host 'Falha na consulta. O banco de dados esta em execucao?' -ForegroundColor Red; break }
         Get-Content -LiteralPath $out -Encoding UTF8 | ForEach-Object { Write-Host $_ }
     }
     Remove-Item -LiteralPath $out -ErrorAction SilentlyContinue

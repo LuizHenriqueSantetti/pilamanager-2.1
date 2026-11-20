@@ -4,10 +4,11 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#f4f8fb" />
-  <meta name="description" content="PilaManager 2.1 — gestão de estúdios de pilates (demonstração com PostgreSQL)" />
+  <meta name="description" content="PilaManager 2.1 — gestão de estúdios de pilates e clínicas de fisioterapia" />
   <title>PilaManager 2.1</title>
   <link rel="stylesheet" href="/assets/styles.css" />
-  <script type="module" src="/assets/app.js"></script>
+  <link rel="stylesheet" href="/assets/telas.css" />
+  <script type="module" src="/assets/js/app.js"></script>
 </head>
 <body>
   <!-- ===================== LOGIN ===================== -->
@@ -61,20 +62,23 @@
   <!-- ===================== APLICAÇÃO ===================== -->
   <div id="app-view" class="app-frame hidden">
     <header class="topbar">
-      <div class="topbar-brand"><button class="menu-toggle icon-btn" type="button" id="menu-toggle" aria-label="Abrir menu"><span data-icon="panelLeft"></span></button><span class="pm-logo-soft" data-icon="activity"></span><strong>PilaManager</strong></div>
-      <div class="topbar-search"><span data-icon="search"></span><input id="global-search" type="search" placeholder="Buscar alunos e profissionais..." aria-label="Buscar pacientes" /></div>
+      <div class="topbar-brand"><button class="menu-toggle icon-btn" type="button" id="menu-toggle" aria-label="Abrir menu"><span data-icon="panelLeft"></span></button><span class="pm-logo-soft" data-icon="activity"></span><strong id="brand-name">PilaManager</strong></div>
+      <div class="topbar-search"><span data-icon="search"></span><input id="global-search" type="search" placeholder="Buscar alunos e profissionais..." aria-label="Buscar alunos e profissionais" autocomplete="off" /><div id="search-results" class="search-results hidden"></div></div>
       <div class="topbar-right">
-        <span class="db-badge" title="Os dados desta tela vêm do PostgreSQL"><span data-icon="database"></span>PostgreSQL</span>
         <button class="icon-btn" type="button" data-action="toggle-theme" aria-label="Alternar tema claro/escuro"><span data-icon="moon"></span></button>
+        <div class="a11y-menu">
+          <button class="icon-btn ghost" type="button" id="a11y-trigger" aria-label="Acessibilidade" aria-expanded="false"><span data-icon="access"></span></button>
+          <div class="a11y-panel hidden" id="a11y-panel" role="dialog" aria-label="Acessibilidade"></div>
+        </div>
         <div class="user-menu">
-          <button class="user-trigger" type="button" id="user-trigger" aria-haspopup="menu" aria-expanded="false">
+          <button class="user-trigger" type="button" id="user-trigger" aria-haspopup="menu" aria-expanded="false" aria-label="Menu do usuário">
             <span class="avatar" id="user-initials">PM</span>
             <span class="user-info"><strong id="user-name">Usuário</strong><small id="user-role">Gerência</small></span>
             <span data-icon="chevronDown"></span>
           </button>
           <div class="dropdown hidden" id="user-dropdown" role="menu">
-            <button type="button" role="menuitem" data-action="open-settings" data-tab="profile"><span data-icon="user"></span>Meu Perfil</button>
-            <button type="button" role="menuitem" data-action="open-settings" data-tab="users" id="menu-users"><span data-icon="users"></span>Usuários do Sistema</button>
+            <button type="button" role="menuitem" data-action="open-settings" data-tab="perfil"><span data-icon="user"></span>Meu Perfil</button>
+            <button type="button" role="menuitem" data-action="open-settings" data-tab="clinica"><span data-icon="building"></span>Configurações</button>
             <hr />
             <button type="button" role="menuitem" id="logout-btn" class="danger"><span data-icon="logOut"></span>Sair</button>
           </div>
@@ -83,89 +87,47 @@
     </header>
 
     <aside class="sidebar" id="sidebar">
-      <div class="workspace"><span data-icon="building"></span><div><strong>PilaManager</strong><small>PilaManager Studio</small></div></div>
+      <div class="workspace"><span id="workspace-logo" data-icon="building"></span><div><strong id="workspace-name">PilaManager</strong><small id="workspace-desc">PilaManager Studio</small></div></div>
       <div class="side-section">ROTINA</div>
       <nav aria-label="Rotina">
         <button class="nav-item" data-page="dashboard" type="button"><span data-icon="grid"></span><span>Visão Geral</span></button>
-        <button class="nav-item" data-page="module" data-module="Agendamento" type="button"><span data-icon="calendar"></span><span>Agendamento</span></button>
-        <button class="nav-item" data-page="patients" type="button"><span data-icon="users"></span><span>Pacientes</span></button>
-        <button class="nav-item" data-page="module" data-module="Equipe" type="button"><span data-icon="cap"></span><span>Equipe</span></button>
+        <button class="nav-item" data-page="agenda" type="button"><span data-icon="calendar"></span><span>Agendamento</span></button>
+        <button class="nav-item" data-page="pacientes" type="button"><span data-icon="users"></span><span>Pacientes</span></button>
+        <button class="nav-item" data-page="equipe" type="button"><span data-icon="cap"></span><span>Equipe</span></button>
       </nav>
       <div class="side-section">GESTÃO</div>
       <nav aria-label="Gestão">
-        <button class="nav-item" data-page="module" data-module="Planos" type="button"><span data-icon="card"></span><span>Planos</span></button>
-        <button class="nav-item" data-page="module" data-module="Cobranças" type="button"><span data-icon="wallet"></span><span>Cobranças</span></button>
-        <button class="nav-item" data-page="module" data-module="Comissionamento" type="button"><span data-icon="dollar"></span><span>Comissionamento</span></button>
-        <button class="nav-item" data-page="module" data-module="Financeiro" type="button"><span data-icon="dollar"></span><span>Financeiro</span></button>
-        <button class="nav-item" data-page="module" data-module="Relatórios" type="button"><span data-icon="file"></span><span>Relatórios</span></button>
+        <button class="nav-item" data-page="planos" type="button"><span data-icon="card"></span><span>Planos</span></button>
+        <button class="nav-item" data-page="cobrancas" type="button"><span data-icon="wallet"></span><span>Cobranças</span></button>
+        <button class="nav-item" data-page="comissoes" type="button"><span data-icon="dollar"></span><span>Comissionamento</span></button>
+        <button class="nav-item" data-page="financeiro" type="button"><span data-icon="dollar"></span><span>Financeiro</span></button>
+        <button class="nav-item" data-page="relatorios" type="button"><span data-icon="file"></span><span>Relatórios</span></button>
       </nav>
       <div class="sidebar-bottom"><div><strong>Seu espaço de trabalho</strong><small>PilaManager 2.1</small></div><button class="icon-btn" type="button" id="collapse-sidebar" aria-label="Recolher menu"><span data-icon="panelLeft"></span></button></div>
     </aside>
 
     <main class="content" id="content">
-      <!-- Visão Geral -->
-      <section id="page-dashboard" class="page hidden">
-        <nav class="breadcrumb">Estúdio <span data-icon="chevronRight"></span> <b>Visão Geral</b></nav>
-        <div class="page-heading"><div><h1>Visão Geral</h1><p>O que precisa da sua atenção, em um só lugar.</p></div><span class="date-chip" id="today-date"></span></div>
-        <div class="stats-grid">
-          <article class="stat-card"><span class="stat-icon" data-icon="users"></span><div><span>Pacientes Ativos</span><strong id="stat-active">—</strong><small>Registros do estúdio</small></div></article>
-          <article class="stat-card"><span class="stat-icon green" data-icon="file"></span><div><span>Pacientes Cadastrados</span><strong id="stat-total">—</strong><small>Total no PostgreSQL</small></div></article>
-          <article class="stat-card"><span class="stat-icon blue" data-icon="power"></span><div><span>Cadastros Inativos</span><strong id="stat-inactive">—</strong><small>Registros preservados</small></div></article>
-          <article class="stat-card"><span class="stat-icon orange" data-icon="cake"></span><div><span>Aniversariantes do Mês</span><strong id="stat-birthdays">—</strong><small>Pacientes ativos</small></div></article>
-        </div>
-        <div class="section-labels"><span>PACIENTES &amp; ACOMPANHAMENTO</span><span>ROTINA DO ESTÚDIO</span></div>
-        <div class="dash-grid">
-          <article class="panel"><header class="panel-head"><h2>Últimos Cadastros</h2><span data-icon="clock"></span></header><div id="recent-list" class="soft-list"></div></article>
-          <article class="panel"><header class="panel-head"><h2><span class="warn" data-icon="info"></span>Integração PostgreSQL</h2></header>
-            <div class="soft-list">
-              <div class="soft-item"><div class="grow"><b class="ok">Login e sessões</b><small>Usuários e sessões gravados no banco.</small></div></div>
-              <div class="soft-item"><div class="grow"><b class="ok">Cadastro de pacientes</b><small>Cadastrar, buscar, editar e inativar.</small></div></div>
-              <div class="soft-item"><div class="grow"><b class="ok">Usuários do Sistema</b><small>Contas criadas pela Gerência, senha em hash.</small></div></div>
-            </div>
-          </article>
-        </div>
-        <div class="dash-grid even">
-          <article class="panel"><header class="panel-head"><h2><span class="tile orange" data-icon="cake"></span><span>Aniversariantes de <span id="month-name"></span></span></h2></header><div id="birthdays-month" class="soft-list"></div></article>
-          <article class="panel"><header class="panel-head"><h2><span class="tile" data-icon="cake"></span>Próximos Aniversários</h2></header><div id="birthdays-next" class="soft-list"></div></article>
-        </div>
-      </section>
-
-      <!-- Pacientes -->
-      <section id="page-patients" class="page hidden">
-        <nav class="breadcrumb">Estúdio <span data-icon="chevronRight"></span> <b>Pacientes</b></nav>
-        <div class="list-heading">
-          <div><h1 class="h-sm">Pacientes</h1><p id="patient-counts">—</p></div>
-          <button id="new-patient" class="btn btn-primary" type="button"><span data-icon="plus"></span>Novo Paciente</button>
-        </div>
-        <div class="filters-row">
-          <div class="search-box"><span data-icon="search"></span><input id="patient-search" aria-label="Buscar pacientes" type="search" placeholder="Buscar por nome, e-mail ou CPF..." /></div>
-          <select id="patient-filter" aria-label="Situação do paciente"><option value="all">Todos os status</option><option value="active">Ativos</option><option value="inactive">Inativos</option></select>
-          <span class="results" id="patient-total">—</span>
-        </div>
-        <div class="table-card">
-          <table>
-            <thead><tr><th>Paciente</th><th class="col-age">Idade</th><th class="col-cpf">CPF</th><th class="col-date">Cadastro</th><th class="col-status">Status</th><th class="right">Ações</th></tr></thead>
-            <tbody id="patient-rows"></tbody>
-          </table>
-        </div>
-        <div class="pagination hidden" id="pagination"><button id="prev-page" type="button" class="btn btn-ghost">Anterior</button><span id="page-label">1 / 1</span><button id="next-page" type="button" class="btn btn-ghost">Próxima</button></div>
-      </section>
-
-      <!-- Módulos fora desta entrega -->
-      <section id="page-module" class="page hidden">
-        <nav class="breadcrumb">Estúdio <span data-icon="chevronRight"></span> <b id="module-crumb"></b></nav>
-        <div class="page-heading"><div><h1 id="module-title"></h1></div></div>
-        <div class="panel empty-module"><span class="tile big" data-icon="database"></span><h2>Módulo fora desta entrega</h2><p>Nesta demonstração acadêmica, apenas <b>Login</b>, <b>Pacientes</b> e <b>Usuários do Sistema</b> foram integrados ao PostgreSQL. Este módulo continua no PilaManager 2.1 completo.</p><button class="btn btn-primary" type="button" data-goto="patients">Ir para Pacientes</button></div>
-      </section>
+      <section id="page-dashboard" class="page hidden"></section>
+      <section id="page-agenda" class="page hidden"></section>
+      <section id="page-pacientes" class="page hidden"></section>
+      <section id="page-equipe" class="page hidden"></section>
+      <section id="page-planos" class="page hidden"></section>
+      <section id="page-cobrancas" class="page hidden"></section>
+      <section id="page-comissoes" class="page hidden"></section>
+      <section id="page-financeiro" class="page hidden"></section>
+      <section id="page-relatorios" class="page hidden"></section>
+      <section id="page-sem-acesso" class="page hidden"><div class="panel empty-module"><span class="tile big" data-icon="lock"></span><h2>Acesso restrito</h2><p>O seu cargo não tem permissão para esta tela. Fale com a Gerência.</p></div></section>
     </main>
   </div>
 
   <div id="modal-backdrop" class="modal-backdrop hidden" role="presentation">
     <section class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
-      <header class="modal-header"><span class="tile" id="modal-icon" data-icon="file"></span><h2 id="modal-title">Novo Paciente</h2><button type="button" id="close-modal" class="icon-btn" aria-label="Fechar"><span data-icon="x"></span></button></header>
+      <header class="modal-header"><span class="tile" id="modal-icon" data-icon="file"></span><div class="grow"><h2 id="modal-title">Título</h2><p id="modal-subtitle" class="modal-sub hidden"></p></div><button type="button" id="close-modal" class="icon-btn" aria-label="Fechar"><span data-icon="x"></span></button></header>
       <div id="modal-body"></div>
     </section>
   </div>
   <div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
+  <div id="a11y-captions" class="a11y-captions hidden" aria-live="polite"></div>
+  <div id="a11y-hover" class="a11y-hover hidden"></div>
 </body>
 </html>

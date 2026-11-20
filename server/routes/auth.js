@@ -1,7 +1,7 @@
 import { query } from '../lib/db.js';
 import { getSession, requireLogin, requireCSRF } from '../lib/auth.js';
 import { cookieValue, clearSessionCookie, setSessionCookie, json, error, readJSON, publicUser } from '../lib/http.js';
-import { digest, makeId, makeToken, verifyPassword } from '../lib/security.js';
+import { digest, makeId, makeToken, verifyPassword, hashPassword } from '../lib/security.js';
 import { normalizeEmail, emailValid } from '../lib/validation.js';
 import { config } from '../lib/config.js';
 
@@ -53,6 +53,39 @@ export async function handleAuth(req, res, path) {
     await query('DELETE FROM sessions WHERE id=$1', [session.session_id]);
     clearSessionCookie(res);
     return json(res,200,{ success:true });
+  }
+
+  // Meu Perfil: a própria pessoa altera nome e e-mail (gravado no PostgreSQL).
+  if (req.method === 'PATCH' && path === '/api/auth/me') {
+    const session = await getSession(req);
+    if (!requireLogin(res, session) || !requireCSRF(req, res, session)) return;
+    const body = await readJSON(req);
+    const name = typeof body.name === 'string' ? body.name.trim() : '';
+    const newEmail = normalizeEmail(body.email);
+    if (name.length < 3 || name.length > 120) return error(res, 400, 'Informe um nome entre 3 e 120 caracteres.');
+    if (!emailValid(newEmail)) return error(res, 400, 'Informe um e-mail válido.');
+    try {
+      const { rows } = await query('UPDATE users SET name=$1, email=$2, updated_at=NOW() WHERE id=$3 RETURNING id,name,email,role,active', [name, newEmail, session.id]);
+      return json(res, 200, { user: publicUser(rows[0]) });
+    } catch (e) {
+      if (e.code === '23505') return error(res, 409, 'Este e-mail já está cadastrado.');
+      throw e;
+    }
+  }
+
+  // Segurança: troca de senha conferindo a senha atual. Encerra as outras sessões abertas.
+  if (req.method === 'POST' && path === '/api/auth/password') {
+    const session = await getSession(req);
+    if (!requireLogin(res, session) || !requireCSRF(req, res, session)) return;
+    const { current_password: current, new_password: next } = await readJSON(req);
+    if (typeof current !== 'string' || typeof next !== 'string') return error(res, 400, 'Informe a senha atual e a nova senha.');
+    if (next.length < 12 || next.length > 128) return error(res, 400, 'A nova senha precisa ter entre 12 e 128 caracteres.');
+    if (next === current) return error(res, 400, 'A nova senha precisa ser diferente da atual.');
+    const { rows: [user] } = await query('SELECT password_hash FROM users WHERE id=$1', [session.id]);
+    if (!user || !(await verifyPassword(current, user.password_hash))) return error(res, 400, 'Senha atual incorreta.');
+    await query('UPDATE users SET password_hash=$1, updated_at=NOW() WHERE id=$2', [await hashPassword(next), session.id]);
+    await query('DELETE FROM sessions WHERE user_id=$1 AND id<>$2', [session.id, session.session_id]);
+    return json(res, 200, { success: true });
   }
   return error(res, 404, 'Rota não encontrada.');
 }

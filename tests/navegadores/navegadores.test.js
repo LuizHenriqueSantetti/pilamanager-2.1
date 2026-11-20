@@ -74,13 +74,13 @@ for (const b of browsers) {
       await page.fill('#login-password', PASSWORD);
       await page.click('#login-form button[type=submit]');
       await page.locator('#page-dashboard').waitFor();
-      await page.locator('#stat-total', { hasText: /\d+/ }).waitFor();
+      await page.locator('#page-dashboard .stat-card strong').first().waitFor();
       await shot('03-visao-geral');
 
       // 4. Novo paciente (sem consentimento é recusado; com consentimento grava)
       const name = `Teste Navegador ${b.name} ${stamp}`;
       const cpf = testCPF(b.base);
-      await page.click('.nav-item[data-page=patients]');
+      await page.click('.nav-item[data-page=pacientes]');
       await page.locator('#patient-rows tr').first().waitFor();
       await page.click('#new-patient');
       await page.fill('#f-name', name);
@@ -107,7 +107,7 @@ for (const b of browsers) {
 
       // 5. Atualizar a página e pesquisar pelo CPF com pontuação
       await page.reload();
-      await page.click('.nav-item[data-page=patients]');
+      await page.click('.nav-item[data-page=pacientes]');
       await page.fill('#patient-search', maskCPF(cpf));
       await page.locator('#patient-total', { hasText: '1 resultado' }).waitFor();
       await row.waitFor();
@@ -123,7 +123,7 @@ for (const b of browsers) {
       await row.locator('[data-action=view]').click();
       await page.locator('.detail-grid', { hasText: '(45) 99777-6655' }).waitFor();
       await shot('07-ficha-editada');
-      await page.click('#cancel-modal');
+      await page.click('#close-modal');
 
       // 7. Inativar com confirmação e conferir no filtro de inativos
       await row.locator('[data-action=status]').click();
@@ -139,9 +139,21 @@ for (const b of browsers) {
 
       // 8. Usuários do Sistema (Configurações)
       await page.click('#user-trigger');
-      await page.click('#menu-users');
+      await page.click('[data-action=open-settings][data-tab=clinica]');
+      await page.click('#modal-body [data-tab=usuarios]');
       await page.locator('.user-row', { hasText: EMAIL }).waitFor();
       await shot('10-usuarios-do-sistema');
+      await page.click('#close-modal');
+
+      // 8b. Todas as telas do menu abrem sem erro
+      for (const tela of ['agenda', 'equipe', 'planos', 'cobrancas', 'comissoes', 'financeiro', 'relatorios', 'dashboard']) {
+        await page.click(`.nav-item[data-page=${tela}]`);
+        await page.locator(`#page-${tela} h1`).first().waitFor();
+      }
+      await page.click('.nav-item[data-page=agenda]');
+      await page.click('#novo-ag');
+      await page.locator('#ag-form').waitFor();
+      await shot('10b-novo-agendamento');
       await page.click('#close-modal');
 
       // 9. Modo escuro
@@ -168,7 +180,7 @@ for (const b of browsers) {
       await phone.click('#login-form button[type=submit]');
       await phone.locator('#page-dashboard').waitFor();
       await phone.click('#menu-toggle');
-      await phone.click('.nav-item[data-page=patients]');
+      await phone.click('.nav-item[data-page=pacientes]');
       await phone.locator('#patient-rows tr').first().waitFor();
       const overflow = await phone.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);
       assert.equal(overflow, false, 'sem rolagem lateral no celular');

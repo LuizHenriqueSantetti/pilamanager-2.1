@@ -11,11 +11,15 @@ Os dados usados aqui são todos inventados.
 | Tela | O que dá para fazer |
 |---|---|
 | Login | Entrar e sair. A senha é conferida no banco e fica salva criptografada. |
-| Pacientes | Cadastrar, pesquisar, ver a ficha, editar, inativar e reativar. |
-| Usuários do Sistema | Criar contas para a equipe, ativar e desativar (menu do usuário, no canto de cima). |
-| Visão Geral | Mostra os totais e os aniversariantes, lidos do banco. |
+| Pacientes | Cadastrar, pesquisar, ver a ficha, editar, inativar, reativar e excluir. |
+| Usuários do Sistema | Criar contas para a equipe, ativar e desativar (Configurações, no menu do usuário). |
+| Meu Perfil e Segurança | Alterar nome, e-mail e senha (Configurações). |
 
-As outras telas do menu (Agendamento, Planos, Financeiro etc.) não fazem parte desta entrega e mostram um aviso.
+## As outras telas
+
+Agendamento, Equipe, Planos, Cobranças, Comissionamento, Financeiro, Relatórios, Clínica, Cargos e Permissões, Aparência e Acessibilidade funcionam normalmente, mas guardam os dados no próprio navegador, como na versão anterior do sistema. Elas usam os pacientes do banco: por exemplo, o agendamento escolhe o paciente cadastrado no PostgreSQL.
+
+Na primeira vez que alguém entra, essas telas já vêm com alguns dados de exemplo (planos, profissionais, aulas e pagamentos).
 
 ## O que precisa ter instalado
 
@@ -51,8 +55,8 @@ Com esses dados dá para abrir também pelo pgAdmin 4. As tabelas principais sã
 Com o sistema aberto, rode o **windows/TESTAR.bat**. Ele faz:
 
 - testes das regras de cadastro (CPF, e-mail, senha, campos obrigatórios);
-- testes que cadastram, editam e inativam e depois conferem no banco;
-- o passo a passo completo no Google Chrome e no Microsoft Edge (abre as janelas sozinho).
+- testes que cadastram, editam, inativam e excluem e depois conferem no banco (inclusive troca de senha e permissões por cargo);
+- o passo a passo completo no Google Chrome e no Microsoft Edge, passando por todas as telas (abre as janelas sozinho).
 
 As capturas de tela dos testes estão em `docs/evidencias`.
 
@@ -60,7 +64,7 @@ As capturas de tela dos testes estão em `docs/evidencias`.
 
 ```
 db/         criação das tabelas do banco
-public/     telas (HTML, CSS e JavaScript)
+public/     telas (HTML, CSS e um arquivo JavaScript para cada tela em assets/js)
 server/     servidor que recebe os dados das telas e grava no banco
 windows/    atalhos para iniciar, parar, ver o banco e testar
 scripts/    scripts usados pelos atalhos

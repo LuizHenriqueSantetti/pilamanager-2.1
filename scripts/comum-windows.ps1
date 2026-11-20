@@ -1,5 +1,5 @@
 # Funcoes compartilhadas pelos scripts de Windows (modo PostgreSQL local, sem Docker).
-# A demo usa uma instancia PostgreSQL propria (pasta e porta separadas), criada com os
+# O sistema usa uma instancia PostgreSQL propria (pasta e porta separadas), criada com os
 # programas do PostgreSQL ja instalado. Nao altera outros bancos nem a senha do "postgres".
 
 function Write-Titulo([string]$message) { Write-Host "`n== $message ==" -ForegroundColor Cyan }
@@ -54,8 +54,8 @@ function Initialize-EnvFile([string]$project) {
             "DB_PASSWORD=$dbPass",
             ('PG_DATA_DIR=' + (Join-Path $env:LOCALAPPDATA 'PilaManagerDemo\postgres-data')),
             ('PG_SUPERUSER_PASSWORD=' + (New-DemoSecret)),
-            'DEMO_ADMIN_EMAIL=gestao.demo@pilamanager.local',
-            'DEMO_ADMIN_NAME=Gerencia Demonstracao',
+            'DEMO_ADMIN_EMAIL=gerencia@pilamanager.local',
+            'DEMO_ADMIN_NAME=Luiz Henrique',
             ('DEMO_ADMIN_PASSWORD=' + (New-DemoSecret).Substring(0,20)),
             'COOKIE_SECURE=false',
             'NODE_ENV=development'
@@ -79,7 +79,7 @@ function Test-DemoPostgresRunning($tools, $settings) {
 function Start-DemoPostgres($tools, $settings) {
     $data = $settings['PG_DATA_DIR']
     if (-not (Test-Path (Join-Path $data 'PG_VERSION'))) {
-        Write-Host "Criando a instancia PostgreSQL da demo em: $data"
+        Write-Host "Criando a instancia banco de dados em: $data"
         New-Item -ItemType Directory -Force (Split-Path $data) | Out-Null
         $pwFile = Join-Path $env:TEMP ('plm-' + [guid]::NewGuid().ToString('N'))
         Set-Content -LiteralPath $pwFile -Value $settings['PG_SUPERUSER_PASSWORD'] -Encoding Ascii -NoNewline
@@ -87,10 +87,10 @@ function Start-DemoPostgres($tools, $settings) {
         finally { Remove-Item -LiteralPath $pwFile -ErrorAction SilentlyContinue }
         if ($LASTEXITCODE -ne 0) { Stop-ComMensagem 'initdb falhou ao criar a instancia PostgreSQL.' }
         Add-Content -LiteralPath (Join-Path $data 'postgresql.conf') -Encoding Ascii -Value @(
-            '', '# PilaManager Demo', "port = $($settings['DB_PORT'])", "listen_addresses = '127.0.0.1'")
+            '', '# PilaManager', "port = $($settings['DB_PORT'])", "listen_addresses = '127.0.0.1'")
     }
     if (-not (Test-DemoPostgresRunning $tools $settings)) {
-        Write-Host 'Iniciando o PostgreSQL da demo...'
+        Write-Host 'Iniciando o banco de dados...'
         # Sem captura de saida: o processo do PostgreSQL herdaria o pipe e o script ficaria travado.
         $info = New-Object System.Diagnostics.ProcessStartInfo $tools.pg_ctl
         $info.Arguments = 'start -w -t 60 -D "' + $data + '" -l "' + (Join-Path $data 'postgres.log') + '"'
@@ -99,8 +99,8 @@ function Start-DemoPostgres($tools, $settings) {
         $pgCtl = [System.Diagnostics.Process]::Start($info)
         $pgCtl.WaitForExit()
         if ($pgCtl.ExitCode -ne 0) { Stop-ComMensagem "O PostgreSQL nao iniciou. Veja $data\postgres.log" }
-        Write-Host 'PostgreSQL da demo iniciado.' -ForegroundColor Green
-    } else { Write-Host 'PostgreSQL da demo ja estava em execucao.' }
+        Write-Host 'banco de dados iniciado.' -ForegroundColor Green
+    } else { Write-Host 'banco de dados ja estava em execucao.' }
     & $tools.pg_isready -h 127.0.0.1 -p $settings['DB_PORT'] | Out-Host
     if ($LASTEXITCODE -ne 0) { Stop-ComMensagem "PostgreSQL nao responde na porta $($settings['DB_PORT'])." }
 
@@ -119,11 +119,11 @@ SELECT 'CREATE DATABASE $db OWNER $u' WHERE NOT EXISTS (SELECT 1 FROM pg_databas
     $env:PGPASSWORD = $settings['PG_SUPERUSER_PASSWORD']
     try { $sql | & $tools.psql -h 127.0.0.1 -p $settings['DB_PORT'] -U postgres -d postgres -v ON_ERROR_STOP=1 -q -X | Out-Host }
     finally { Remove-Item Env:PGPASSWORD -ErrorAction SilentlyContinue }
-    if ($LASTEXITCODE -ne 0) { Stop-ComMensagem 'Nao foi possivel preparar o usuario/banco da demo.' }
+    if ($LASTEXITCODE -ne 0) { Stop-ComMensagem 'Nao foi possivel preparar o usuario e o banco.' }
 }
 
 function Stop-DemoPostgres($tools, $settings) {
     if (Test-DemoPostgresRunning $tools $settings) {
         & $tools.pg_ctl stop -D $settings['PG_DATA_DIR'] -m fast -w | Out-Host
-    } else { Write-Host 'O PostgreSQL da demo ja estava parado.' }
+    } else { Write-Host 'O banco de dados ja estava parado.' }
 }

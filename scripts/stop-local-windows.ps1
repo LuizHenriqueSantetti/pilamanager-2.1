@@ -1,4 +1,4 @@
-# Encerra o servidor e o PostgreSQL da demo. Os cadastros continuam gravados em disco.
+# Encerra o servidor e o banco de dados. Os cadastros continuam gravados em disco.
 $project = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
 Set-Location $project
 . (Join-Path $PSScriptRoot 'comum-windows.ps1')
