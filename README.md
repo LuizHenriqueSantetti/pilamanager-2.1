@@ -71,9 +71,9 @@ docs/       capturas de tela dos testes
 
 | Para quê | Ferramenta | Link |
 |---|---|---|
-| Organização das tarefas | Trello | (adicionar link) |
+| Organização das tarefas | Trello | https://trello.com/b/tFTm4z72/pilamanager-21 |
 | Protótipo das telas | Figma | (adicionar link) |
-| Código | GitHub | (adicionar link) |
+| Código | GitHub | https://github.com/LuizHenriqueSantetti/pilamanager-2.1 |
 | Banco de dados | PostgreSQL 17 | https://www.postgresql.org |
 | Ver e consultar o banco | pgAdmin 4 | https://www.pgadmin.org |
 | Servidor | Node.js com a biblioteca `pg` | https://nodejs.org |
