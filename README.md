@@ -69,13 +69,8 @@ docs/       capturas de tela dos testes
 
 ## Ferramentas que usamos
 
-| Para quê | Ferramenta | Link |
-|---|---|---|
-| Organização das tarefas | Trello | https://trello.com/b/tFTm4z72/pilamanager-21 |
-| Protótipo das telas | Figma | (adicionar link) |
-| Código | GitHub | https://github.com/LuizHenriqueSantetti/pilamanager-2.1 |
-| Banco de dados | PostgreSQL 17 | https://www.postgresql.org |
-| Ver e consultar o banco | pgAdmin 4 | https://www.pgadmin.org |
-| Servidor | Node.js com a biblioteca `pg` | https://nodejs.org |
-| Testes no navegador | Playwright | https://playwright.dev |
-| Controle de versão | Git | https://git-scm.com |
+- **Trello:** https://trello.com/b/tFTm4z72/pilamanager-21
+- **GitHub:** https://github.com/LuizHenriqueSantetti/pilamanager-2.1
+- **PostgreSQL** (banco de dados): https://www.postgresql.org
+- **pgAdmin** (para ver o banco): https://www.pgadmin.org
+- **Node.js** (servidor): https://nodejs.org
