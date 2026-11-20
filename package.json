@@ -14,7 +14,8 @@
     "db:seed": "node scripts/seed.js",
     "test": "node --test tests/*.test.js",
     "test:integracao": "node --test --test-concurrency=1 tests/integracao/*.test.js",
-    "test:navegadores": "node --test --test-concurrency=1 --test-timeout=180000 tests/navegadores/*.test.js"
+    "test:navegadores": "node --test --test-concurrency=1 --test-timeout=180000 tests/navegadores/*.test.js",
+    "start:servidor": "node scripts/migrate.js && node scripts/seed.js && node server/index.js"
   },
   "dependencies": {
     "pg": "^8.13.1"

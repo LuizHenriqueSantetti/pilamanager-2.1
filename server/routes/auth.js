@@ -3,6 +3,17 @@ import { getSession, requireLogin, requireCSRF } from '../lib/auth.js';
 import { cookieValue, clearSessionCookie, setSessionCookie, json, error, readJSON, publicUser } from '../lib/http.js';
 import { digest, makeId, makeToken, verifyPassword } from '../lib/security.js';
 import { normalizeEmail, emailValid } from '../lib/validation.js';
+import { config } from '../lib/config.js';
+
+// IP de quem está acessando. Atrás do proxy do Render usa o último endereço do X-Forwarded-For,
+// que é o colocado pelo próprio proxy (os anteriores podem ser forjados pelo visitante).
+function clientAddress(req) {
+  if (config.trustProxy) {
+    const chain = String(req.headers['x-forwarded-for'] ?? '').split(',').map(s => s.trim()).filter(Boolean);
+    if (chain.length) return chain[chain.length - 1];
+  }
+  return req.socket.remoteAddress ?? 'unknown';
+}
 
 export async function handleAuth(req, res, path) {
   if (req.method === 'POST' && path === '/api/auth/login') {
@@ -10,7 +21,7 @@ export async function handleAuth(req, res, path) {
     const email = normalizeEmail(body.email);
     const password = body.password;
     if (!emailValid(email) || typeof password !== 'string' || password.length > 128) return error(res, 400, 'Informe e-mail e senha válidos.');
-    const remote = req.socket.remoteAddress ?? 'unknown';
+    const remote = clientAddress(req);
     const identifier = digest(email + ':' + remote);
     const { rows: [{ count }] } = await query(`SELECT COUNT(*)::integer AS count FROM login_attempts WHERE identifier=$1 AND attempted_at > NOW() - INTERVAL '15 minutes'`, [identifier]);
     if (count >= 5) return error(res, 429, 'Muitas tentativas. Tente novamente em 15 minutos.');

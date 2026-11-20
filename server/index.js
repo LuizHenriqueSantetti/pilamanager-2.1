@@ -20,6 +20,9 @@ const server = http.createServer(async(req,res)=>{
   res.setHeader('Referrer-Policy','no-referrer');
   res.setHeader('X-Content-Type-Options','nosniff');
   res.setHeader('Content-Security-Policy',"default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'");
+  res.setHeader('Permissions-Policy','camera=(), microphone=(), geolocation=()');
+  // Na internet (HTTPS) o navegador passa a usar sempre conexão segura com o site.
+  if (config.cookieSecure) res.setHeader('Strict-Transport-Security','max-age=31536000');
   try {
     const url=new URL(req.url||'/',`http://${req.headers.host||'localhost'}`);
     const pathname=url.pathname;

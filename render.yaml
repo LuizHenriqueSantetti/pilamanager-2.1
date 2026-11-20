@@ -1,0 +1,27 @@
+# Configuração do site no Render (https://render.com).
+# O banco fica no Neon: o endereço dele (DATABASE_URL) é colado no painel do Render, nunca aqui.
+services:
+  - type: web
+    name: pilamanager-postgresql
+    runtime: node
+    plan: free
+    region: ohio
+    buildCommand: npm ci --omit=dev
+    startCommand: npm run start:servidor
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: NODE_ENV
+        value: production
+      - key: TRUST_PROXY
+        value: "true"
+      - key: DATABASE_URL
+        sync: false
+      - key: DEMO_ADMIN_EMAIL
+        value: gestao.demo@pilamanager.local
+      - key: DEMO_ADMIN_NAME
+        value: Gerencia Demonstracao
+      - key: DEMO_ADMIN_PASSWORD
+        generateValue: true
