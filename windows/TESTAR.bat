@@ -1,5 +1,5 @@
 @echo off
-cd /d "%~dp0"
+cd /d "%~dp0.."
 title PilaManager - Testes automatizados
 where node >nul 2>nul || (echo Node.js nao encontrado. Instale o Node.js LTS em https://nodejs.org & pause & exit /b 1)
 echo == Instalando as ferramentas de teste (somente na primeira vez) ==

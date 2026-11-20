@@ -26,10 +26,10 @@ As outras telas do menu (Agendamento, Planos, Financeiro etc.) não fazem parte 
 
 ## Como usar
 
-1. Abra o **INICIAR.bat** (dois cliques). Na primeira vez demora uns 2 minutos, porque ele cria o banco.
+1. Abra o **windows/INICIAR.bat** (dois cliques). Na primeira vez demora uns 2 minutos, porque ele cria o banco.
 2. Ele abre o navegador em http://localhost:3000 e mostra na janela o **e-mail e a senha** para entrar.
-3. Para ver os dados direto no banco, abra o **VER_BANCO.bat**.
-4. Para fechar tudo, abra o **PARAR.bat**. Os dados continuam salvos.
+3. Para ver os dados direto no banco, abra o **windows/VER_BANCO.bat**.
+4. Para fechar tudo, abra o **windows/PARAR.bat**. Os dados continuam salvos.
 
 O e-mail e a senha também ficam no arquivo `.env`, que é criado na primeira vez.
 
@@ -48,7 +48,7 @@ Com esses dados dá para abrir também pelo pgAdmin 4. As tabelas principais sã
 
 ## Testes
 
-Com o sistema aberto, rode o **TESTAR.bat**. Ele faz:
+Com o sistema aberto, rode o **windows/TESTAR.bat**. Ele faz:
 
 - testes das regras de cadastro (CPF, e-mail, senha, campos obrigatórios);
 - testes que cadastram, editam e inativam e depois conferem no banco;
@@ -62,7 +62,8 @@ As capturas de tela dos testes estão em `docs/evidencias`.
 db/         criação das tabelas do banco
 public/     telas (HTML, CSS e JavaScript)
 server/     servidor que recebe os dados das telas e grava no banco
-scripts/    scripts usados pelos arquivos .bat
+windows/    atalhos para iniciar, parar, ver o banco e testar
+scripts/    scripts usados pelos atalhos
 tests/      testes automáticos
 docs/       capturas de tela dos testes
 ```
